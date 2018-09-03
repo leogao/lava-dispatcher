@@ -40,6 +40,7 @@ import traceback
 import yaml
 import zmq
 import zmq.auth
+import psutil
 from urllib.parse import urlparse
 from zmq.utils.strtypes import b, u
 
@@ -250,8 +251,14 @@ class Job(object):
 
     def is_running(self):
         try:
-            with open("/proc/%d/cmdline" % self.pid, "r") as fd:
-                return "lava-run" in fd.read()
+            import psutil
+            p = psutil.Process(self.pid)
+            if p.status() == psutil.STATUS_SLEEPING and p.children() == []:
+                LOG.info("[%d] status is sleeping, no children is running", self.pid)
+                p.kill()
+                return False
+            else:
+                return "lava-run" in p.name()
         except IOError:
             return False
 

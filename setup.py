@@ -71,6 +71,7 @@ setup(
         'pytz',
         'file-magic',
         'configobj',
+        'psutil',
         'setproctitle >= 1.1.8'
     ],
     test_suite='lava_dispatcher.test',
